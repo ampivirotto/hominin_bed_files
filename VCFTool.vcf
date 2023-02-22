@@ -1,0 +1,7 @@
+## toy vcd file
+#CHROM	POS	ID	REF	ALT	QUAL	FILTER	INFO	FORMAT	IND
+22	1	.	A	T	.	.	.	.	1/1
+22	100	.	G	C	.	.	.	.	1/1
+22	101	.	T	C	.	.	.	.	0/1
+22	105	.	C	A	.	.	.	.	0/0
+22	200	.	C	T	.	.	.	.	1/0
