@@ -75,7 +75,7 @@ for line in vcf:
             missing = 0
             use = Go[species]
             for index in use:
-                data = lst[index]
+                data = lst[index][:3]
                 if data == '0|0' or data == '0/0':
                     ref += 2
                     tot += 2
