@@ -53,7 +53,7 @@ Go['Pongo'] = Pongo
 
 output_df = pd.DataFrame(columns=['Chromosome','Position','Ref','Alt','1000K-Ref','1000K-Alt','1000K-Missing','Pongo-Ref','Pongo-Alt','Pongo-Missing','Pan-Ref','Pan-ALt','Pan-Missing','Archaic-Ref','Archaic-Alt','Archaic-Missing'])
 
-totalLines = 77740
+totalLines = 546653
 counter = 1
 for line in vcf:
     line = line.decode('ASCII')
