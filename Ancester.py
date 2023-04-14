@@ -54,12 +54,12 @@ Go['Pongo'] = Pongo
 output_df = pd.DataFrame(columns=['Chromosome','Position','Ref','Alt','1000K-Ref','1000K-Alt','1000K-Missing','Pongo-Ref','Pongo-Alt','Pongo-Missing','Pan-Ref','Pan-ALt','Pan-Missing','Archaic-Ref','Archaic-Alt','Archaic-Missing'])
 
 totalLines = 77740
-counter = 1 
+counter = 1
 for line in vcf:
     line = line.decode('ASCII')
-    if (counter / totalLines * 100) % 5 == 0:
-        print(str(counter/totalLines * 100) + "%")
-    counter += 1 
+    if (counter / totalLines * 100) % 5 == 0.0:
+        print(str(round(counter/totalLines * 100, 3)) + "%")
+    counter += 1
     if line[0] != '#':
         add = []
         lst = line.split()
