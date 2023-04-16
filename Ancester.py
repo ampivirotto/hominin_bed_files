@@ -2,12 +2,18 @@ import pandas as pd
 import numpy as np
 import gzip
 
-
+vcf = gzip.open('../chr22/chr22_cds_primates.vcf.gz','r')
+Id1000 = open('../ep/1000K.txt','r')
+IdPongo = open('../ep/Pongo.txt','r')
+IdPan = open('../ep/Pan.txt','r')
+IdArch = open('../ep/Archaics.txt','r')
+"""
 vcf = gzip.open('chr22_cds_primates.vcf.gz','r')
 Id1000 = open('IDS/1000K.txt','r')
 IdPongo = open('IDS/Pongo.txt','r')
 IdPan = open('IDS/Pan.txt','r')
 IdArch = open('IDS/Archaics.txt','r')
+"""
 
 for line in vcf:
     line = line.decode('ASCII')
