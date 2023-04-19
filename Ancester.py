@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import gzip
 
-vcf = gzip.open('../chr22/chr22_cds_primates.vcf.gz','r')
+vcf = gzip.open('chr22_cds_primates.vcf.gz','r')
+file = open('hominin_bed_files/primate_branch_ids.txt','r')
 # Id1000 = open('../ep/1000K.txt','r')
 # IdPongo = open('../ep/Pongo.txt','r')
 # IdPan = open('../ep/Pan.txt','r')
@@ -22,7 +23,7 @@ def makeIndDictionary(line,file):
 
     lineSplit = line.split('\t')
 
-    for i in range(9, len(lineSplit)):
+    for i in range(9, len(lineSplit)-1):
         idName = lineSplit[i]
         species = list(df[df[0] == idName][1])[0]
 
@@ -38,8 +39,7 @@ def makeIndDictionary(line,file):
 for line in vcf:   #getting the ids add putting in a list
     line = line.decode('ASCII')
     if line[:3] == '#CH':
-        idlist = line.split()
-        no,Go = makeIndDictionary(idlist,pass)
+        no,Go = makeIndDictionary(line,file)
         break
 
 # Go = {} #empty dictionary to get list of all different ids and species
