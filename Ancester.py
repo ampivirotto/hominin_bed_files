@@ -2,12 +2,18 @@ import pandas as pd
 import numpy as np
 import gzip
 
-
+vcf = gzip.open('../chr22/chr22_cds_primates.vcf.gz','r')
+Id1000 = open('../ep/1000K.txt','r')
+IdPongo = open('../ep/Pongo.txt','r')
+IdPan = open('../ep/Pan.txt','r')
+IdArch = open('../ep/Archaics.txt','r')
+"""
 vcf = gzip.open('chr22_cds_primates.vcf.gz','r')
 Id1000 = open('IDS/1000K.txt','r')
 IdPongo = open('IDS/Pongo.txt','r')
 IdPan = open('IDS/Pan.txt','r')
 IdArch = open('IDS/Archaics.txt','r')
+"""
 
 for line in vcf:   #getting the ids add putting in a list
     line = line.decode('ASCII')
@@ -56,20 +62,20 @@ output_df = pd.DataFrame(columns=['Chromosome','Position','Ref','Alt','1000K-Ref
 
 totalLines = 77740
 counter = 1 
-for line in vcf: #go through lines of the vcf file
+for line in vcf:
     line = line.decode('ASCII')
     if (counter / totalLines * 100) % 5 == 0:
         print(str(counter/totalLines * 100) + "%")
     counter += 1 
-    if line[0] != '#': #get into nonheader lines
-        add = [] #empty list to add into dataframe
-        lst = line.split() #make list
-        chrome = lst[0] #the chrome
-        pos = lst[1] #position in chrome
-        nuke_ref = lst[3] #the reference for that nucleotide
-        nuke_alt = lst[4] #alt for that nucleotide
-        add.extend([chrome,pos,nuke_ref,nuke_alt]) 
-        for species in Go: #go species by species
+    if line[0] != '#':
+        add = []
+        lst = line.split()
+        chrome = lst[0]
+        pos = lst[1]
+        nuke_ref = lst[3]
+        nuke_alt = lst[4]
+        add.extend([chrome,pos,nuke_ref,nuke_alt])
+        for species in Go:
             alt = 0
             ref = 0 #reset all variables after each species
             tot = 0
