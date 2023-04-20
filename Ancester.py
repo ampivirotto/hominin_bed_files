@@ -23,7 +23,7 @@ def makeIndDictionary(line,file):
 
     lineSplit = line.split('\t')
 
-    for i in range(9, len(lineSplit)-1):
+    for i in range(9, len(lineSplit)):
         idName = lineSplit[i]
         species = list(df[df[0] == idName][1])[0]
 
