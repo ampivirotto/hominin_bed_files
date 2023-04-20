@@ -25,8 +25,10 @@ def makeIndDictionary(line,file):
 
     for i in range(9, len(lineSplit)):
         idName = lineSplit[i]
-        species = list(df[df[0] == idName][1])[0]
-
+        row = df[df[0] == idName]
+        if len(row)>0:
+            species = list(row[1])[0]
+        
         indDict[i] = species
 
         if species not in specDict:
