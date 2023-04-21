@@ -1,6 +1,8 @@
 import pandas as pd
 import numpy as np
 import gzip
+import sys
+#sys.argv[1] #system input for missingness
 
 vcf = gzip.open('chr22_cds_primates.vcf.gz','r')
 file = open('hominin_bed_files/primate_branch_ids.txt','r')
@@ -97,7 +99,7 @@ for line in vcf:
         pos = lst[1]
         nuke_ref = lst[3]
         nuke_alt = lst[4]
-        add.extend([chrome,pos,nuke_ref,nuke_alt])
+        add.extend([chrome,pos,nuke_ref,nuke_alt])   #add tot_missing = 0 could try for total missing
         for species in Go:
             alt = 0
             ref = 0 #reset all variables after each species
@@ -129,5 +131,7 @@ for line in vcf:
             add.extend([alt/tot,ref/tot,missing/tot]) #add data to list
     output_df.loc[len(output_df.index)] = add #add list to dataframe
 
+#output of textfile for chromosome, position, nucleotide, ensembl (European ancester state)
+#calc most common allele for pongo, pan, gorilla /also get the missing amount
 
 output_df.to_csv('Freq.txt',sep='\t',index=False) #convert dataframe to a text file

@@ -11,6 +11,7 @@
 import gzip
 import pandas as pd
 import numpy as np
+import sys
 
 
 def readVCF(vcffn, indLoc):
@@ -100,4 +101,5 @@ def main(vcffn):
         readVCF(vcffn)
 
 if __name__ == '__main__':
+    vcf_file = sys.argv[1]
     main()
