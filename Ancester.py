@@ -190,17 +190,19 @@ def makeTXT(vcf,ids,missing):
                             ancest_missing += 2
                             ancest_tot += 2
                     """
-                if len(use) != tot/2: #check 1
-                    print("Ids don't match len of list")
-                    exit()
-                if round(alt/tot+ref/tot+missing/tot,3) != 1: #check 2
-                    print(alt/tot+ref/tot+missing/tot)
-                    print('Frequencies does not equal 1')
-                    exit()
                 if not triallelic:
                     alt2 = 0
                 if not quadallelic:
                     alt3 = 0
+
+                if len(use) != tot/2: #check 1
+                    print("Ids don't match len of list")
+                    exit()
+                if round(alt/tot+ref/tot+missing/tot+alt2/tot+alt3/tot,3) != 1: #check 2
+                    print(chrome, pos, alt/tot+ref/tot+missing/tot+alt2/tot+alt3/tot)
+                    print('Frequencies does not equal 1')
+                    exit()
+
                 add.extend([ref/tot, alt/tot, alt2/tot, alt3/tot, missing/tot]) #add data to list
 
             if not triallelic:
