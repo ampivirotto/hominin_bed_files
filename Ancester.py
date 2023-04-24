@@ -3,7 +3,7 @@ import numpy as np
 import gzip
 import sys
 
-missing_stat  = sys.argv[1] #system input for missingness
+missing_stat  = float(sys.argv[1]) #system input for missingness
 vcf = sys.argv[2]
 names = sys.argv[3]
 
@@ -33,7 +33,7 @@ def makeIndDictionary(line,file):
         row = df[df[0] == idName]
         if len(row)>0:
             species = list(row[1])[0]
-        
+
         indDict[i] = species
 
         if species not in specDict:
@@ -84,17 +84,21 @@ for line in vcf:   #getting the ids add putting in a list
 # Go['Pongo'] = Pongo
 
 def makeTXT(vcf,ids,missing):
-    output_df = pd.DataFrame(columns=['Chromosome','Position','Ref','Alt','1000K-Ref','1000K-Alt','1000K-Missing','Pongo-Ref','Pongo-Alt','Pongo-Missing','Pan-Ref','Pan-ALt','Pan-Missing','Archaic-Ref','Archaic-Alt','Archaic-Missing'])
+    cols = ['Chromosome','Position','Ref','Alt', 'Alt2', 'Alt3']
+    for species in ids.keys():
+        for x in ['ref', 'alt', 'alt2', 'alt3', 'missing']:
+            cols.append(species + "_" + x)
+    output_df = pd.DataFrame(columns=cols)
     #above is a dataframe just to easily organize the data
     state_df = pd.DataFrame(columns=['Chromosome','Position','Nucleotide']) #Ensembl will be added later
 
     # totalLines = 77740
-    # counter = 1 
+    # counter = 1
     for line in vcf:
         line = line.decode('ASCII')
         # if round((counter / totalLines * 100),2) % 5 == 0:
         #     print(str(counter/totalLines * 100) + "%")
-        # counter += 1 
+        # counter += 1
         if line[0] != '#':
             add = [] #lest to add to freq file
             state_add = [] #list to add to state file
@@ -103,20 +107,66 @@ def makeTXT(vcf,ids,missing):
             pos = lst[1] #position in line
             nuke_ref = lst[3] #ref in line
             nuke_alt = lst[4] #alt in line
-            ancest_missing = 0 
-            ancest_tot = 0
-            ancest_alt = 0 # initiate factors for the state file
-            ancest_ref = 0
-            add.extend([chrome,pos,nuke_ref,nuke_alt]) # add values to list for output files
+            ancest_missing, ancest_tot, ancest_alt, ancest_ref = 0, 0, 0, 0
+            an_alt2, an_alt3 = 0, 0
             state_add.extend([chrome,pos])
+
+            ## figure out how many alt alleles there are
+            triallelic = False
+            quadallelic = False
+            if len(nuke_alt.split(',')) == 2:
+                triallelic = True
+                altBP1, altBP2 = nuke_alt.split(',')
+            elif len(nuke_alt.split(',')) == 3:
+                quadallelic = True
+                altBP1, altBP2, altBP3 = nuke_alt.split(',')
+
+            if triallelic:
+                add.extend([chrome,pos,nuke_ref,altBP1, altBP2, np.nan]) # add values to list for output files
+            elif quadallelic:
+                add.extend([chrome,pos,nuke_ref,altBP1, altBP2, altBP3])
+            else:
+                add.extend([chrome,pos,nuke_ref, nuke_alt, np.nan, np.nan])
+
             for species in ids: #go species by species
                 alt = 0
                 ref = 0 #reset all variables after each species
                 tot = 0
                 missing = 0
+                alt2, alt3 = 0, 0
+
                 use = ids[species] #get list of ids
+                ## iterates through each species
                 for index in use: #go id by id for each species
                     data = lst[index][:3] #data for eact id
+                    if len(data) < 2:
+                        missing += 2
+                    else:
+                        ref += data.count('0')
+                        alt += data.count('1')
+                        missing += data.count('.')
+                        if triallelic:
+                            alt2 += data.count('2')
+                        if quadallelic:
+                            alt2 += data.count('2')
+                            alt3 +=  data.count('3')
+                    tot += 2
+
+                    if species in ['Pan','Pongo','Gorilla']: #puts in data depeending on species
+                        if len(data) < 2:
+                            ancest_missing += 2
+                        else:
+                            ancest_ref += data.count('0')
+                            ancest_alt += data.count('1')
+                            ancest_missing += data.count('.')
+                            if triallelic:
+                                an_alt2 += data.count('2')
+                            if quadallelic:
+                                an_alt2 += data.count('2')
+                                an_alt3 +=  data.count('3')
+                        ancest_tot += 2
+
+                    """
                     if data == '0|0' or data == '0/0':
                         ref += 2
                         tot += 2
@@ -139,6 +189,7 @@ def makeTXT(vcf,ids,missing):
                         if species in ['Pan','Pongo','Gorilla']:
                             ancest_missing += 2
                             ancest_tot += 2
+                    """
                 if len(use) != tot/2: #check 1
                     print("Ids don't match len of list")
                     exit()
@@ -146,16 +197,35 @@ def makeTXT(vcf,ids,missing):
                     print(alt/tot+ref/tot+missing/tot)
                     print('Frequencies does not equal 1')
                     exit()
-                add.extend([alt/tot,ref/tot,missing/tot]) #add data to list
+                if not triallelic:
+                    alt2 = 0
+                if not quadallelic:
+                    alt3 = 0
+                add.extend([ref/tot, alt/tot, alt2/tot, alt3/tot, missing/tot]) #add data to list
+
+            if not triallelic:
+                an_alt2 = 0
+            if not quadallelic:
+                an_alt3 = 0
             ancest_missing_freq = ancest_missing/ancest_tot #get freq of missing in pan,pongo,gorilla
-            ancest_alt_freq = ancest_alt/ancest_tot #get freq of alt in pan,pongo,gorilla
-            ancest_ref_freq = ancest_ref/ancest_tot #freq of ref in pan,pongo,gorilla
-            if ancest_missing_freq >= missing_stat or (ancest_missing_freq>ancest_alt_freq and ancest_missing_freq > ancest_ref_freq):
+            #ancest_alt_freq = ancest_alt/ancest_tot #get freq of alt in pan,pongo,gorilla
+            #ancest_ref_freq = ancest_ref/ancest_tot #freq of ref in pan,pongo,gorilla
+            freqs = [ancest_ref/ancest_tot, ancest_alt/ancest_tot, an_alt2/ancest_tot, an_alt3/ancest_tot, ancest_missing_freq]
+            maxFreq = max(freqs)
+            maxIndex = freqs.index(maxFreq)
+
+            if ancest_missing_freq >= missing_stat or (maxIndex == 4):
                 ancest_state = 'NA' #when the ancestor nucleotide will be missing
-            elif ancest_ref_freq > ancest_missing_freq and ancest_ref_freq > ancest_alt_freq:
+            elif maxIndex == 0:
                 ancest_state = nuke_ref #when ancestor nucleotide will be the ref
-            elif ancest_alt_freq > ancest_missing_freq and ancest_alt_freq > ancest_ref_freq:
+            elif maxIndex == 1:
+                if triallelic or quadallelic:
+                    ancest_state = altBP1
                 ancest_state = nuke_alt #when the ancestor nucleotide will be alt
+            elif maxIndex == 2:
+                ancest_state = altBP2
+            elif maxIndex == 3:
+                ancest_state = altBP3
             state_add.append(ancest_state)
             output_df.loc[len(output_df.index)] = add #add list to dataframe
             state_df.loc[len(state_df.index)] = state_add #add list to dataframe for ancestor state
@@ -170,12 +240,12 @@ makeTXT(vcf,Go,missing_stat)
 # state_df = pd.DataFrame(columns=['Chromosome','Position','Nucleotide']) #Ensembl will be added later
 
 # totalLines = 77740
-# counter = 1 
+# counter = 1
 # for line in vcf:
 #     line = line.decode('ASCII')
 #     if round((counter / totalLines * 100),2) % 5 == 0:
 #         print(str(counter/totalLines * 100) + "%")
-#     counter += 1 
+#     counter += 1
 #     if line[0] != '#':
 #         add = []
 #         state_add = []
