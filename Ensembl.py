@@ -3,7 +3,7 @@ import numpy as np
 import sys 
 
 
-file ='homo_sapiens_ancestor_22.fa' #sys.argv[1]
+file =sys.argv[1]
 
 def Ensembl(file):
     df = pd.DataFrame(columns=['Chromosome','Position','Ensembl'])
@@ -24,7 +24,7 @@ def Ensembl(file):
         print(pos,end,sep='\t')
         print(int(end)-int(pos-1))
         exit()
-    df.to_csv(chrome+'Ensembl.txt',sep='\t',index=False)
+    df.to_csv('../ensembl/NoahEnsembl/'+chrome+'Ensembl.txt',sep='\t',index=False)
 
 
 Ensembl(file)
