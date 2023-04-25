@@ -25,7 +25,7 @@ def Ensembl(file):
                 pos += 1
     if pos-1 != end: #questionable on this test
         print(pos,end,sep='\t')
-        print(int(end)-int(pos))
+        print(int(end)-int(pos-1))
         exit()
     df.to_csv(chrome+'Ensembl.txt',sep='\t',index=False)
 
