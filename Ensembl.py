@@ -16,9 +16,6 @@ def Ensembl(file):
             end = int(lst[4])
             
         else:
-            percent = round((pos/end)*100,3)
-            if percent%.1 == 0:
-                print(str(percent)+'%')
             goat = str(line)
             for value in goat:
                 df.loc[len(df.index)] = [chrome,pos,value]
