@@ -23,7 +23,6 @@ def Ensembl(file):
     if pos-1 != end: #questionable on this test
         print(pos,end,sep='\t')
         print(int(end)-int(pos-1))
-        exit()
     df.to_csv('../ensembl/NoahEnsembl/'+chrome+'Ensembl.txt',sep='\t',index=False)
 
 
