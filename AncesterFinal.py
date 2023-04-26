@@ -3,9 +3,9 @@ import numpy as np
 import gzip
 import sys
 
-missing_stat  = .5 #float(sys.argv[1]) #system input for missingness
-vcf = 'chr22_cds_primates.vcf.gz' #sys.argv[2]
-names = 'IDS/primate_branch_ids.txt' #sys.argv[3]
+missing_stat  = float(sys.argv[1]) #system input for missingness
+vcf = sys.argv[2]
+names = sys.argv[3]
 
 vcf = gzip.open(vcf,'r')
 idfile = open(names,'r')
