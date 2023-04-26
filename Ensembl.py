@@ -32,7 +32,7 @@ def Ensembl(file):
             print(pos,end,sep='\t')
             print(int(end)-int(pos-1))
 
-    pd.DataFrame.from_dict(dfdict, orient='index', columns=['Chromosome','Position','Ensembl']).to_csv('../ensembl/NoahEnsembl/'+chrome+'Ensembl.csv',index=False)
+    pd.DataFrame.from_dict(dfdict, orient='index', columns=['Chromosome','Position','Ensembl']).to_csv('../ensembl/NoahEnsembl/'+str(chrome)+'Ensembl.csv',index=False)
     #pd.DataFrame.from_dict(dfdict, orient='index', columns=['Chromosome','Position','Ensembl']).to_csv('./'+str(chrome)+'Ensembl.csv',index=False)
 
 
