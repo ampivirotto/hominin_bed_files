@@ -190,10 +190,6 @@ def makeTXT(vcf,ids,missing):
                             ancest_missing += 2
                             ancest_tot += 2
                     """
-                if not triallelic:
-                    alt2 = 0
-                if not quadallelic:
-                    alt3 = 0
 
                 if len(use) != tot/2: #check 1
                     print("Ids don't match len of list")
@@ -205,10 +201,6 @@ def makeTXT(vcf,ids,missing):
 
                 add.extend([ref/tot, alt/tot, alt2/tot, alt3/tot, missing/tot]) #add data to list
 
-            if not triallelic:
-                an_alt2 = 0
-            if not quadallelic:
-                an_alt3 = 0
             ancest_missing_freq = ancest_missing/ancest_tot #get freq of missing in pan,pongo,gorilla
             #ancest_alt_freq = ancest_alt/ancest_tot #get freq of alt in pan,pongo,gorilla
             #ancest_ref_freq = ancest_ref/ancest_tot #freq of ref in pan,pongo,gorilla
@@ -231,8 +223,8 @@ def makeTXT(vcf,ids,missing):
             state_add.append(ancest_state)
             output_df.loc[len(output_df.index)] = add #add list to dataframe
             state_df.loc[len(state_df.index)] = state_add #add list to dataframe for ancestor state
-    output_df.to_csv('Freq.txt',sep='\t',index=False) #convert dataframe to a text file
-    state_df.to_csv('State.txt',sep='\t',index=False) #convert data frame to text file
+    output_df.to_csv('Freq.csv', index=False) #convert dataframe to a text file
+    state_df.to_csv('State.csv', index=False) #convert data frame to text file
 
 makeTXT(vcf,Go,missing_stat)
 
