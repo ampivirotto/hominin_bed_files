@@ -154,8 +154,8 @@ def makeTXT(vcf,ids,missing):
             state_add.append(ancest_state)
             output_df_dic[len(output_df_dic)] = add #add list to dataframe
             state_df_dic[len(state_df_dic)] = state_add #add list to dataframe for ancestor state
-    pd.DataFrame.from_dict(output_df_dic, orient='index', columns=cols).to_csv('/Frequencies/Frequencies.csv',index=False)  #convert dataframe to a text file
-    pd.DataFrame.from_dict(state_df_dic,orient='index',columns=['Chromosome','Position','Nucleotide']).to_csv('/State/State.csv',index=False) #convert data frame to text file
+    pd.DataFrame.from_dict(output_df_dic, orient='index', columns=cols).to_csv('Frequencies.csv',index=False)  #convert dataframe to a text file
+    pd.DataFrame.from_dict(state_df_dic,orient='index',columns=['Chromosome','Position','Nucleotide']).to_csv('State.csv',index=False) #convert data frame to text file
 
 makeTXT(vcf,Go,missing_stat)
 
