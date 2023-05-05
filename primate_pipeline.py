@@ -17,6 +17,7 @@ import subprocess
 import sys
 import gzip
 import shlex
+import AddNoncall
 
 def VCFfilter(folder,file,chrome):
     if chrome == 'all':
@@ -64,6 +65,13 @@ def peakVCF(file):
                     else:
                         return 'chr'
 
+
+def nonCall(location, file, ):
+    """
+    add uncallable regions using AddNoncall.py program which takes three arguments: chromosome number, bedfile, vcffile
+    """
+    AddNoncall.main(chrom, bedfile, location + file)
+
 def splitByChromosome(location):
     """
     split all vcf files into single chromosome vcf files
@@ -91,7 +99,7 @@ def main(location):
             chromosome = getChrome(file)
             output = VCFfilter(location,file,chromosome)
             if not archaic:
-                addNonCall()
+                nonCall()
             else:
                 addArchaicMissing()
 
