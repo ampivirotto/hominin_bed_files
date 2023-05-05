@@ -15,6 +15,8 @@ import sys
 import gzip
 import shlex
 import AddNoncall
+import re
+import ArchaicaddNonCall
 
 def VCFfilter(folder,file,chrome):
     if chrome == 'all':
@@ -70,7 +72,7 @@ def peakVCF(file):
                         return 'chr'
 
 
-def nonCall(location, file, ):
+def nonCall(location,file,chrom,bedfile):
     """
     add uncallable regions using AddNoncall.py program which takes three arguments: chromosome number, bedfile, vcffile
     """
@@ -80,20 +82,31 @@ def splitByChromosome(location):
     """
     split all vcf files into single chromosome vcf files
     """
-    for file in os.listdir(location):
+    files = os.listdir(location)
+    returnFiles = []
+
+    for file in files:
         if file.endswith('.vcf.gz'):
             if not os.path.isfile(location + file + '.csi') or os.path.isfile(location + file + '.tbi'):
                 index(location + file)
-            chrform = peakVCF(location + file)
+            chrform = peakVCF(location + file) #might change to getChrome()
             splitCMD = 'sh split.sh {} {} {}'.format(location, file, chrform)
             cmdLine = shlex.split(splitCMD)
+            returnFiles.append(file)
             subprocess.run(cmdLine)
-
+    return returnFiles
 
 def main(location):
     ## split the large single wgs file into chromosomes (gorilla and pongo)
+    location = sys.argv[1]
     if len(os.listdir(location)) < 22:
-        splitByChromosome(location)
+        new_Loc = location + '/WholeGenome'
+        Files = splitByChromosome(new_Loc)
+        for file in Files:
+            command = 'mv ' + file + '~/hominin/' + location
+            cmdLine = shlex.split(command)
+            subprocess.run(cmdLine)
+
 
 
     ## iterate through every chromosome
@@ -105,7 +118,7 @@ def main(location):
             if not archaic:
                 nonCall()
             else:
-                addArchaicMissing()
+                addArchaicMissing() #currently in the making
 
 
 if __name__ == '__main__':
