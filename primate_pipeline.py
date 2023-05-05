@@ -1,7 +1,4 @@
-import os
-import subprocess
-import re
-import sys
+
 #-------------------------------------------------------------------------------
 # Name:        module1
 # Purpose:
@@ -49,6 +46,13 @@ def zipUP(file):
     command = 'bgzip ' + file
     command = shlex.split(command)
     subprocess.run(command)
+
+def ReName(location,file):
+    output = file.strip('.vcf.gz') + '_renamed_chr.vcf.gz'
+    command = 'bcftools annotate --rename-chrs Chrome/chrName.txt -Oz -o ' + output
+    cmdLine = shlex.split(command)
+    subprocess.run(cmdLine)
+    return output
 
 def peakVCF(file):
     """
