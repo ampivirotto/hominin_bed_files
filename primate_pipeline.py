@@ -16,7 +16,7 @@ import gzip
 import shlex
 import AddNoncall
 import re
-import ArchaicaddNonCall
+import archaicAddNoncall
 
 def VCFfilter(folder,file,chrome):
     if chrome == 'all':
@@ -38,10 +38,10 @@ def index(file):
 
 def getChrome(file):
     to_search = r'chr\d+'
-    all = re.search(to_search,file)
-    if all == None:
-        return 'all'
-    return all[3:]
+    all = re.findall(to_search,file)
+    if len(all) == 0:
+        pass #what to put of now chrom
+    return all[0][3:]
 
 def zipUP(file):
     ## bgzip using bcftools
@@ -50,7 +50,7 @@ def zipUP(file):
     subprocess.run(command)
 
 def ReName(location,file):
-    output = file.strip('.vcf.gz') + '_renamed_chr.vcf.gz'
+    output = location + '/' + file.strip('.vcf.gz') + '_renamed_chr.vcf.gz'
     command = 'bcftools annotate --rename-chrs Chrome/chrName.txt -Oz -o ' + output
     cmdLine = shlex.split(command)
     subprocess.run(cmdLine)
@@ -89,7 +89,7 @@ def splitByChromosome(location):
         if file.endswith('.vcf.gz'):
             if not os.path.isfile(location + file + '.csi') or os.path.isfile(location + file + '.tbi'):
                 index(location + file)
-            chrform = peakVCF(location + file) #might change to getChrome()
+            chrform = getChrome(location + file) #might change to peakVcf()
             splitCMD = 'sh split.sh {} {} {}'.format(location, file, chrform)
             cmdLine = shlex.split(splitCMD)
             returnFiles.append(file)
@@ -99,6 +99,7 @@ def splitByChromosome(location):
 def main(location):
     ## split the large single wgs file into chromosomes (gorilla and pongo)
     location = sys.argv[1]
+    bedfile = sys.argv[2]
     if len(os.listdir(location)) < 22:
         new_Loc = location + '/WholeGenome'
         Files = splitByChromosome(new_Loc)
@@ -114,11 +115,14 @@ def main(location):
         if file.endswith('.vcf.gz'):
             ## filter out snps and sort the files
             chromosome = getChrome(file)
-            output = VCFfilter(location,file,chromosome)
-            if not archaic:
-                nonCall()
+            New_chrome_file = ReName(location,file)
+            output = VCFfilter(location,New_chrome_file,chromosome)
+            index(output)
+
+            if location != 'Archaic':
+                nonCall(location,file,chromosome,bedfile)
             else:
-                addArchaicMissing() #currently in the making
+                archaicAddNoncall.main(file,chromosome) #currently in the making
 
 
 if __name__ == '__main__':
