@@ -12,12 +12,11 @@ import sys
 # Copyright:   (c) tuk32868 2023
 # Licence:     <your licence>
 #-------------------------------------------------------------------------------
-def getChrome(file):
-    to_search = r'chr\d+'
-    all = re.search(to_search,file)
-    if all == None:
-        return 'all'
-    return all[3:]
+import os
+import subprocess
+import sys
+import gzip
+import shlex
 
 def VCFfilter(folder,file,chrome):
     if chrome == 'all':
@@ -30,21 +29,61 @@ def VCFfilter(folder,file,chrome):
     output =  folder + '/' + '.'.join(title)
     command  = 'bcf view -R '+ coding_region_file +' ' + file + ''' -i 'TYPE = "snp"' | bcftools sort -o ''' + output + ' -Oz'
     ##  bcftools view -R (coding region file) (original VCF file of Gorilla/Archaic) -i 'TYPE="snp"' | bcftools sort -o (name of new output VCF) -Oz
-    subprocess.run(command)
-    return output
+    return
 
 def index(file):
     ## index using bcftools
-    command = 'bcftools index ' + file
-    subprocess.run(command)
+    cmdLine = shlex.split('bcftools index {}'.format(file))
+    subprocess.run(cmdLine)
+
+def getChrome(file):
+    to_search = r'chr\d+'
+    all = re.search(to_search,file)
+    if all == None:
+        return 'all'
+    return all[3:]
 
 def zipUP(file):
     ## bgzip using bcftools
     command = 'bgzip ' + file
     subprocess.run(command)
+    return
+
+def peakVCF(file):
+    """"
+    identify if chromosome column is chr# or # format
+    """"
+    if file.endswith('.gz'):
+        with gzip.open(file) as f:
+            for line in f:
+                line = line.decode('ASCII')
+                if not line.startswith("#"):
+                    chrnum = line.split('\t')[0]
+                    if 'chr' in chrnum:
+                        return ''
+                    else:
+                        return 'chr'
+
+def splitByChromosome(location):
+    """
+    split all vcf files into single chromosome vcf files
+    """
+    for file in os.listdir(location):
+        if file.endswith('.vcf.gz'):
+            if not os.path.isfile(location + file + '.csi') or os.path.isfile(location + file + '.tbi'):
+                index(location + file)
+            chrform = peakVCF(location + file)
+            splitCMD = 'sh split.sh {} {} {}'.format(location, file, chrform)
+            cmdLine = shlex.split(splitCMD)
+            print(cmdLine)
+            subprocess.run(cmdLine)
+
 
 def main(location):
     ## split the large single wgs file into chromosomes (gorilla and pongo)
+    if len(os.listdir(location)) < 22:
+        splitByChromosome(location)
+
 
     ## iterate through every chromosome
     for file in os.listdir(location):

@@ -1,0 +1,1 @@
+bcftools index -s $1$2 | cut -f 1 | while read C; do bcftools view -O z -o $1$3${C}_$2 $1$2 "${C}" ; done 
