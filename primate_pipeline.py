@@ -23,13 +23,13 @@ def VCFfilter(folder,file,chrome):
         coding_region_file = './bedfiles/EP_CDS_no_CHR.merged.bed'
     else:
         coding_region_file = './bedfiles/'+ chrome +'.merged.bed'
-    title = file.split('.')
-    go = title.index('.vcf')
-    title[go-1] = title[go-1] + '_filtered'
-    output =  folder + '/' + '.'.join(title)
+    newfile = file.rstrip('.vcf.gz') + '_filter.vcf.gz'
+    output =  folder + '/' + newfile
     command  = 'bcf view -R '+ coding_region_file +' ' + file + ''' -i 'TYPE = "snp"' | bcftools sort -o ''' + output + ' -Oz'
     ##  bcftools view -R (coding region file) (original VCF file of Gorilla/Archaic) -i 'TYPE="snp"' | bcftools sort -o (name of new output VCF) -Oz
-    return
+    cmd = shlex.split(command)
+    subprocess.run(cmd)
+    return output
 
 def index(file):
     ## index using bcftools
@@ -46,13 +46,13 @@ def getChrome(file):
 def zipUP(file):
     ## bgzip using bcftools
     command = 'bgzip ' + file
+    command = shlex.split(command)
     subprocess.run(command)
-    return
 
 def peakVCF(file):
-    """"
+    """
     identify if chromosome column is chr# or # format
-    """"
+    """
     if file.endswith('.gz'):
         with gzip.open(file) as f:
             for line in f:
@@ -75,7 +75,6 @@ def splitByChromosome(location):
             chrform = peakVCF(location + file)
             splitCMD = 'sh split.sh {} {} {}'.format(location, file, chrform)
             cmdLine = shlex.split(splitCMD)
-            print(cmdLine)
             subprocess.run(cmdLine)
 
 
@@ -90,9 +89,7 @@ def main(location):
         if file.endswith('.vcf.gz'):
             ## filter out snps and sort the files
             chromosome = getChrome(file)
-            done = VCFfilter(location,file,chromosome)
-            index(done)
-            zipUP(done)
+            output = VCFfilter(location,file,chromosome)
             if not archaic:
                 addNonCall()
             else:
