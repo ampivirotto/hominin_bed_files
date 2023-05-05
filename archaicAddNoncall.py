@@ -10,7 +10,7 @@
 #-------------------------------------------------------------------------------
 import gzip
 import pysam
-
+import sys
 
 def REF(chrnum):
     """
@@ -18,7 +18,11 @@ def REF(chrnum):
     """
     refDict = {}
     genome = pysam.FastaFile('/mnt/z/hg19_reference/chr{}.fa.gz'.format(chrnum))
-    import pdb; pdb.set_trace()
+    #import pdb; pdb.set_trace()
+    for x in range(0, genome.lengths[0]):
+        pos = genome.fetch(genome.references[0], start=x, end=x+1)
+        refDict[x] = pos
+    return refDict
 
 
 def main(chrnum, vcffname):
@@ -26,6 +30,9 @@ def main(chrnum, vcffname):
     outfname = vcffname.rstrip('.vcf.gz') + '_nonCallRegionAdded.vcf'
     New = open(outfname,"w")
 
+    ref = REF(chrnum)
+    print(len(ref))
+    exit()
 
     with gzip.open(vcffname) as f:
         prevPos = 0
@@ -41,4 +48,4 @@ def main(chrnum, vcffname):
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1], sys.argv[2])
