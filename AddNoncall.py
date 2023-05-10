@@ -59,7 +59,7 @@ def main(chromNum, ncBED, vcffname):
     colCount = 2
 
     ## read in dictionary of ancestor
-    dic = pd.read_pickle(r'grch37_poskey_baseval_dic_{}_based.p'.format(chromNum))
+    dic = pd.read_pickle(r'./hg19_ancestor_pickle/grch37_poskey_baseval_dic_{}_based.p'.format(chromNum))
 
     ## add id col
     workingDict, colCount = addVCFcols(NonCall, colCount)
@@ -74,7 +74,7 @@ def main(chromNum, ncBED, vcffname):
 
     missingSites = len(workingDict)
     log.write('Total Noncallable Sites in CDS region: ' + str(missingSites) + '\n')
-    print(missingSites)
+    #print(missingSites)
 
     vcfSites = 0
     foundNC = 0
@@ -99,7 +99,7 @@ def main(chromNum, ncBED, vcffname):
     #print(len(workingDict))
     #print(missingSites + vcfSites)
     assert len(workingDict) == missingSites + vcfSites
-    print(vcfSites, foundNC)
+    #print(vcfSites, foundNC)
     log.write('Total Number of Variant sites (in callable CDS): ' + str(vcfSites) +'\n')
     log.write('Total Number of Variant Sites (in noncallable CDS): ' + str(foundNC) + '\n')
 
@@ -110,6 +110,8 @@ def main(chromNum, ncBED, vcffname):
 
     New.close()
 
+    return outfname
+
 if __name__ == '__main__':
     ## python NAME.py CHROM BEDFILE VCFFILE
-    main(sys.argv[1], sys.argv[2], sys.argv[3])
+    outfn = main(sys.argv[1], sys.argv[2], sys.argv[3])
