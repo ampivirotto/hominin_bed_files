@@ -116,8 +116,10 @@ def peakVCF(file):
                 if not line.startswith("#"):
                     chrnum = line.split('\t')[0]
                     if 'chr' in chrnum:
+                        #print(chrnum)
                         return '', chrnum[3:]
                     else:
+                        #print(chrnum)
                         return 'chr', chrnum
 
 def ArchNonCall(location, vcffile, chrom):
