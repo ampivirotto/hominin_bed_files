@@ -18,12 +18,12 @@ def REF(chrnum):
     get reference genome
     """
     refDict = {}
-    genome = pysam.FastaFile('./hg19_reference/chr{}.fa.gz'.format(chrnum))
+    genome = pysam.FastaFile('./hg19_reference/chr{}.fa.gz'.format(chrnum)) #reading in file using pysam
     with open('./bedfiles/{}.merged.bed'.format(chrnum)) as f:
         for line in f:
             splitLine = line.strip('\n').split('\t')
             for x in range(int(splitLine[1]), int(splitLine[2])+1):
-                pos = genome.fetch(genome.references[0], start=x, end=x+1)
+                pos = genome.fetch(genome.references[0], start=x, end=x+1) #fetching the position
                 refDict[x] = pos
     return refDict
 

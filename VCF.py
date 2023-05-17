@@ -50,8 +50,8 @@ output2.write('##Database=PrimateIndividuals'+'\n')
 headers2 = '\t'.join(['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT','PRIMATE'])
 output2.write(headers2+'\n')
 
-with open(original_vcf,'r') as file:
-    for line in file:
+with open(original_vcf,'r') as file: #could interate through the merged bed file, and go through those ranges
+    for line in file: 
         if line[0] != '#':
             lis = line.strip().split()
             Ensembl_Add,Ancestor_Add = [chromosome],[chromosome]
@@ -77,3 +77,5 @@ with open(original_vcf,'r') as file:
             Ancestor_String = '\t'.join(Ancestor_Add)
             output1.write(Ensembl_String+'\n')
             output2.write(Ancestor_String+'\n')
+
+#look into switching to merged file instead iterating through vcf
