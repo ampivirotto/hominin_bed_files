@@ -116,10 +116,8 @@ def peakVCF(file):
                 if not line.startswith("#"):
                     chrnum = line.split('\t')[0]
                     if 'chr' in chrnum:
-                        #print(chrnum)
                         return '', chrnum[3:]
                     else:
-                        #print(chrnum)
                         return 'chr', chrnum
 
 def ArchNonCall(location, vcffile, chrom):
@@ -147,14 +145,16 @@ def nonCall(location,vcffile,chrom,bedfileLocation):
     """
     add uncallable regions using AddNoncall.py program which takes three arguments: chromosome number, bedfile, vcffile
     """
-    bedfile = ''
-    files = os.listdir(bedfileLocation)
-    for file in files:
-        if file.endswith('.bed'):
-            if str(chrom) in file:
-                bedfile = bedfileLocation + file
-                break
-    if bedfile == '':
+    bedfiles = os.listdir(bedfileLocation)
+    print(bedfiles)
+    tempBed = bedfiles[0].split('_')[:-1]
+    print(tempBed)
+    bedfileName = "_".join(tempBed) + "_{}.bed".format(str(chrom))
+    print(bedfileName)
+
+    bedfile = bedfileLocation + bedfileName
+    print(bedfile)
+    if not os.path.isfile(bedfile):
         print('error BED file for noncallable region not found for chromosome {}'.format(chrom))
         exit()
     try:
@@ -230,7 +230,7 @@ def main(location, bedfileLoc):
                     output = VCFarchFilter(location,New_chrome_file,num)
                     index(output)
                 else:
-                    vcffile = location + file 
+                    vcffile = location + file
                     if not (os.path.isfile(vcffile + '.csi') or os.path.isfile(vcffile + '.tbi')):
                         index(vcffile)
                     output = VCFarchFilter(location,vcffile,num)
@@ -240,7 +240,7 @@ def main(location, bedfileLoc):
             if not newFileName == '':
                     zipUP(newFileName)
                     index(newFileName+'.gz')
-            print('Finish {}'.format(file))
+            print('Finish {}'.format(location + file))
 
 
 if __name__ == '__main__':
