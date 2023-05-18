@@ -1,7 +1,7 @@
 import sys
 import pysam
 
-chromosome = '22' #sys.argv[1] #only input will be the number of a chomosome
+chromosome = sys.argv[1] #only input will be the number of a chomosome
 
 Ensembl_path = './../ensembl/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_{}.fa'.format(chromosome)
 State_path = './States/chrome_{}.csv'.format(chromosome)   
