@@ -3,9 +3,9 @@ import pysam
 
 chromosome = '22' #sys.argv[1] #only input will be the number of a chomosome
 
-Ensembl_path = 'hominin_bed_files/output/Frequencies.csv'   #'../ensembl/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_{}.fa'.format(chromosome)
-State_path = 'hominin_bed_files/output/State.csv'    #'/States/chrome_{}.csv'.format(chromosome) #made up name here
-bedfile = 'bedfiles/{}.merged.bed'.format(chromosome)
+Ensembl_path = './../ensembl/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_{}.fa'.format(chromosome)
+State_path = './States/chrome_{}.csv'.format(chromosome)   
+bedfile = './bedfile/{}.merged.bed'.format(chromosome)
 
 def Ensembl(filePath):
     dfdict = {}
@@ -19,7 +19,7 @@ def Ensembl(filePath):
             else:
                 goat = line.strip('\n')
                 for value in goat:
-                    dfdict[pos] = [value]
+                    dfdict[pos] = value
                     pos += 1
         if pos-1 != end:
             print(pos,end,sep='\t')
@@ -30,7 +30,7 @@ def StateDictionary(file2Path):
     State = {}
     with open(file2Path,'r') as data:
         for line in data:
-            lis = line.split(',')
+            lis = line.strip('\n').split(',')
             if lis[1][0].isnumeric():
                 Position = int(lis[1])
                 State[Position] = lis[2]
@@ -41,8 +41,8 @@ def REF(chrnum):
     get reference genome
     """
     refDict = {}
-    genome = pysam.FastaFile('./hg19_reference/chr{}.fa.gz'.format(chrnum)) #reading in file using pysam
-    with open('./bedfiles/{}.merged.bed'.format(chrnum)) as f:
+    genome = pysam.FastaFile('./hg19_reference/chr{}.fa.gz ./bedfiles/{}.merged.bed'.format(chrnum)) #reading in file using pysam
+    with open('hominin_bed_files/output/{}.merged.bed'.format(chrnum)) as f:
         for line in f:
             splitLine = line.strip('\n').split('\t')
             for x in range(int(splitLine[1]), int(splitLine[2])+1):
@@ -50,19 +50,15 @@ def REF(chrnum):
                 refDict[x] = pos
     return refDict
 
-EnsemblDic = Ensembl(Ensembl_path)
-StateDic = StateDictionary(State_path)
-RefDic = REF(chromosome)
 
 
 def MakeVCF(bed,Epath,Spath,chromosome):
     '''Make VCF file for the state and ensembl data, take in the bed file for iteration
-    a dictionary for the ensembl data, a dictionary for the ancecter data and a dictionary for the reference'''
+    and paths for the various different files'''
 
     Edic = Ensembl(Epath)
     Sdic = StateDictionary(Spath)
     Rdic = REF(chromosome)
-    
     output1 = open('/StateVcf/Ensembl{}.vcf'.format(chromosome),'w')
     output1.write('##fileformat=VCFv4.2'+'\n')
     output1.write('##Database=Ensembl'+'\n')
@@ -85,7 +81,7 @@ def MakeVCF(bed,Epath,Spath,chromosome):
                     Ref = Rdic[position]
                     Ensembl_Add += [str(position),'.',Ref]
                     Ancestor_Add += [str(position),'.',Ref]
-                    Ensembl_nuke,Ancestor_nuke = Edic[position],Sdic[position]
+                    Ensembl_nuke,Ancestor_nuke = Edic.get(position,'NA'),Sdic.get(position,'NA')
                     if Ensembl_nuke == Ref:
                         Ensembl_Add += ['.','.','.','.','.','0|0']
                     else:
@@ -107,4 +103,4 @@ def MakeVCF(bed,Epath,Spath,chromosome):
     output1.close()
     output2.close()
 
-
+MakeVCF(bedfile,Ensembl_path,State_path,chromosome)
