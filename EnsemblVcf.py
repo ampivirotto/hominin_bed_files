@@ -63,14 +63,14 @@ def MakeVCF(bed,Epath,chromosome):
                     Ensembl_Add = [chromosome]
                     Ref = Rdic[position]
                     Ensembl_Add += [str(position),'.',Ref]
-                    Ensembl_nuke = Edic.get(position,'NA')
+                    Ensembl_nuke = Edic.get(position,'NA').upper()
                     if Ensembl_nuke == Ref:
                         Ensembl_Add += ['.','.','.','.','.','0|0']
                     elif Ensembl_nuke == 'NA':
                         Ensembl_Add += ['.','.','.','.','.','.|.']
                     else:
                         if Ensembl_nuke.isalpha():
-                            Ensembl_Add += [Ensembl_nuke.upper(),'.','.','.','.','1|1']  ## AP make it uppercase
+                            Ensembl_Add += [Ensembl_nuke,'.','.','.','.','1|1']  ## AP make it uppercase
                         elif Ensembl_nuke == '.':
                             Ensembl_Add += ['.','.','.','.','.','.']
                     Ensembl_String = '\t'.join(Ensembl_Add)
