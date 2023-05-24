@@ -30,14 +30,14 @@ def REF(chrnum,bedfile):
     """
     get reference genome
     """
-    refDict = {} 
+    refDict = {}
     genome = pysam.FastaFile('./hg19_reference/chr{}.fa.gz'.format(chrnum)) #reading in file using pysam
     with open(bedfile) as f:
         for line in f:
             splitLine = line.strip('\n').split('\t')
             for x in range(int(splitLine[1]), int(splitLine[2])+1):
-                pos = genome.fetch(genome.references[0], start=x, end=x+1) #fetching the position
-                refDict[x] = pos
+                pos = genome.fetch(genome.references[0], start=x-1, end=x) #fetching the position   ## AP fix bug in finding reference (off by one error)
+                refDict[x] = pos.upper()  ## AP make sure it's uppercase
     return refDict
 
 
@@ -70,7 +70,7 @@ def MakeVCF(bed,Epath,chromosome):
                         Ensembl_Add += ['.','.','.','.','.','.|.']
                     else:
                         if Ensembl_nuke.isalpha():
-                            Ensembl_Add += [Ensembl_nuke,'.','.','.','.','1|1']
+                            Ensembl_Add += [Ensembl_nuke.upper(),'.','.','.','.','1|1']  ## AP make it uppercase
                         elif Ensembl_nuke == '.':
                             Ensembl_Add += ['.','.','.','.','.','.']
                     Ensembl_String = '\t'.join(Ensembl_Add)

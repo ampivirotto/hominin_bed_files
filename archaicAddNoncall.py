@@ -31,7 +31,7 @@ def makeLine(chrnum, pos, ref, numInds):
     info = '.'
     if ref.islower():
         info = 'hg19REF=lowProbability;'
-    cols = [chrnum, pos, '.', ref, '.', '.', '.', info, '.']  ## chr, pos, id, ref, alt, qual, filter, info, format
+    cols = [chrnum, pos, '.', ref.upper(), '.', '.', '.', info, '.']  ## chr, pos, id, ref, alt, qual, filter, info, format
     assert len(cols) == 9
 
     for indn in range(numInds):
