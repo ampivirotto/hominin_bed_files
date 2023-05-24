@@ -73,23 +73,40 @@ def checkFreq(ids, line, secondAlt = False):
                 alt2 = gt.count('2')
 
     if secondAlt:
-        return ref/len(ids), alt/len(ids), missing/len(ids), alt2/len(ids)
-    return ref/len(ids), alt/len(ids), missing/len(ids)
+        return [ref/len(ids), alt/len(ids), missing/len(ids), alt2/len(ids)]
+    return [ref/len(ids), alt/len(ids), missing/len(ids)]
 
 def readLine(line, indDict):
     splitLine = line.strip('\n').split('\t')
+
+    lineDict = {}
 
     pos = splitLine[1]
     chrnum = splitLine[0]
     ref = splitLine[3]
     alt = splitLine[4]
 
-    mhREF, mhALT, mhMissing = checkFreq(specs['mHuman'], line)
+    if len(alt.split(',')) > 2:
+        return
+    elif (len(alt.split(',')) == 2) or (len(alt.split(','))== 1):
+        outProps = checkFreq(specs['mHuman'], line)
 
-    if mhMissing > 0.5:
+        if outProps[2] > 0.5:
+            return
+        lineDict['mHuman'] = outProps
+
+        spec_ids = ['Pan', 'Pongo', 'Gorilla']
+
+        for idS in spec_ids:
+            outProps = checkFreq(specs[idsS], line)
+            if outProps[2] > 0.5:
+                return
+            lineDict[idS] = outProps
+    else:
+        print(alt)
         return
 
-
+    hominins = lineDict['mHuman']
 
 
 

@@ -18,12 +18,12 @@ def REF(chrnum):
     get reference genome
     """
     refDict = {}
-    genome = pysam.FastaFile('./hg19_reference/chr{}.fa.gz'.format(chrnum)) #reading in file using pysam
+    genome = pysam.FastaFile('./hg19_reference/chr{}.fa.gz'.format(chrnum))
     with open('./bedfiles/{}.merged.bed'.format(chrnum)) as f:
         for line in f:
             splitLine = line.strip('\n').split('\t')
             for x in range(int(splitLine[1]), int(splitLine[2])+1):
-                pos = genome.fetch(genome.references[0], start=x, end=x+1) #fetching the position
+                pos = genome.fetch(genome.references[0], start=x-1, end=x)
                 refDict[x] = pos
     return refDict
 
@@ -53,6 +53,7 @@ def main(chrnum, vcffname):
                 line = line.decode('ASCII')
 
                 if line.startswith('#CHROM'):
+                    New.write('##INFO=<ID=hg19REF,Number=1,Type=String,Description="flag for low probability reference">\n')
                     numInds = len(line.split('\t')) - 9
                     New.write(line)
                 elif line.startswith('#'):
