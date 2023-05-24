@@ -4,7 +4,7 @@ import pysam
 chromosome = sys.argv[1] #only input will be the number of a chomosome
 
 Ensembl_path = './../ensembl/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_{}.fa'.format(chromosome)
-State_path = './States/chrome_{}.csv'.format(chromosome)   
+State_path = './States/chrome_{}.csv'.format(chromosome)
 bedfile = './bedfile/{}.merged.bed'.format(chromosome)
 
 def Ensembl(filePath):
@@ -36,13 +36,13 @@ def StateDictionary(file2Path):
                 State[Position] = lis[2]
     return State
 
-def REF(chrnum):
+def REF(chrnum,bedfile):
     """
     get reference genome
     """
-    refDict = {}
+    refDict = {} 
     genome = pysam.FastaFile('./hg19_reference/chr{}.fa.gz ./bedfiles/{}.merged.bed'.format(chrnum)) #reading in file using pysam
-    with open('hominin_bed_files/output/{}.merged.bed'.format(chrnum)) as f:
+    with open(bedfile) as f:
         for line in f:
             splitLine = line.strip('\n').split('\t')
             for x in range(int(splitLine[1]), int(splitLine[2])+1):
@@ -58,14 +58,14 @@ def MakeVCF(bed,Epath,Spath,chromosome):
 
     Edic = Ensembl(Epath)
     Sdic = StateDictionary(Spath)
-    Rdic = REF(chromosome)
-    output1 = open('/StateVcf/Ensembl{}.vcf'.format(chromosome),'w')
+    Rdic = REF(chromosome,bed)
+    output1 = open('Ensembl{}.vcf'.format(chromosome),'w')
     output1.write('##fileformat=VCFv4.2'+'\n')
     output1.write('##Database=Ensembl'+'\n')
     headers1 = '\t'.join(['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT','ENSEMBL'])
     output1.write(headers1+'\n')
 
-    output2 = open('/StateVcf/Ancestor_chr{}.vcf'.format(chromosome),'w')
+    output2 = open('Ancestor_chr{}.vcf'.format(chromosome),'w')
     output2.write('##fileformat=VCFv4.2'+'\n')
     output2.write('##Database=PrimateIndividuals'+'\n')
     headers2 = '\t'.join(['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT','PRIMATE'])
@@ -84,6 +84,8 @@ def MakeVCF(bed,Epath,Spath,chromosome):
                     Ensembl_nuke,Ancestor_nuke = Edic.get(position,'NA'),Sdic.get(position,'NA')
                     if Ensembl_nuke == Ref:
                         Ensembl_Add += ['.','.','.','.','.','0|0']
+                    elif Ensembl_nuke == 'NA':
+                        Ensembl_Add += ['.','.','.','.','.','.|.']
                     else:
                         if Ensembl_nuke.isalpha():
                             Ensembl_Add += [Ensembl_nuke,'.','.','.','.','1|1']
@@ -91,6 +93,8 @@ def MakeVCF(bed,Epath,Spath,chromosome):
                             Ensembl_Add += ['.','.','.','.','.','.']
                     if Ancestor_nuke == Ref:
                         Ancestor_Add += ['.','.','.','.','.','0|0']
+                    elif Ancestor_nuke == 'NA':
+                       Ancestor_Add += ['.','.','.','.','.','.|.'] 
                     else:
                         if Ancestor_nuke.isalpha():
                             Ancestor_Add += [Ancestor_nuke,'.','.','.','.','1|1']
@@ -104,3 +108,6 @@ def MakeVCF(bed,Epath,Spath,chromosome):
     output2.close()
 
 MakeVCF(bedfile,Ensembl_path,State_path,chromosome)
+
+
+#look into merge, option where the sites not in vcf files become reference
