@@ -146,14 +146,10 @@ def nonCall(location,vcffile,chrom,bedfileLocation):
     add uncallable regions using AddNoncall.py program which takes three arguments: chromosome number, bedfile, vcffile
     """
     bedfiles = os.listdir(bedfileLocation)
-    print(bedfiles)
     tempBed = bedfiles[0].split('_')[:-1]
-    print(tempBed)
     bedfileName = "_".join(tempBed) + "_{}.bed".format(str(chrom))
-    print(bedfileName)
 
     bedfile = bedfileLocation + bedfileName
-    print(bedfile)
     if not os.path.isfile(bedfile):
         print('error BED file for noncallable region not found for chromosome {}'.format(chrom))
         exit()
