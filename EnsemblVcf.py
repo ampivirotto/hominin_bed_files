@@ -5,7 +5,7 @@ import pysam
 chromosome = sys.argv[1] #only input will be the number of a chomosome
 
 Ensembl_path = './../ensembl/homo_sapiens_ancestor_GRCh37_e71/homo_sapiens_ancestor_{}.fa'.format(chromosome)
-bedfile = './bedfile/{}.merged.bed'.format(chromosome)
+bedfile = './bedfiles/{}.merged.bed'.format(chromosome)
 
 def Ensembl(filePath):
     dfdict = {}
@@ -48,7 +48,7 @@ def MakeVCF(bed,Epath,chromosome):
 
     Edic = Ensembl(Epath)
     Rdic = REF(chromosome,bed)
-    output1 = open('Ensembl{}.vcf'.format(chromosome),'w')
+    output1 = open('EnsemblVcf/Ensembl{}.vcf'.format(chromosome),'w')
     output1.write('##fileformat=VCFv4.2'+'\n')
     output1.write('##Database=Ensembl'+'\n')
     headers1 = '\t'.join(['#CHROM','POS','ID','REF','ALT','QUAL','FILTER','INFO','FORMAT','ENSEMBL'])
