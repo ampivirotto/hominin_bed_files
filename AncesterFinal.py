@@ -3,6 +3,12 @@ import numpy as np
 import gzip
 import sys
 
+'''This outputs two files, one is each species' frequency breakdown of the alt, ref, and missing for each position.
+The second file is the the most frequent nucleotide in the vcfs of the ancesters (Pongo, Pan, Gorilla)'''
+
+
+
+
 missing_stat  = float(sys.argv[1]) #system input for missingness
 vcf = sys.argv[2]
 names = sys.argv[3]
