@@ -4,12 +4,10 @@ import gzip
 import sys
 
 missing_stat  = float(sys.argv[1]) #system input for missingness
-chrome = sys.argv[2]
-names = sys.argv[3]
-
+chrome = str(sys.argv[2])
+idfile = sys.argv[3]
 path = 'allSpeciesVCFs/chr{}_cds_primates.vcf.gz'.format(chrome)
 vcf = gzip.open(path,'r')
-idfile = open(names,'r')
 
 def makeIDDictionary(line,file): #makes a dictionary of all the ids and the species they are
     indDict = {}
@@ -18,7 +16,7 @@ def makeIDDictionary(line,file): #makes a dictionary of all the ids and the spec
     df = pd.read_csv(file, sep = '\t', header = None)
 
     lineSplit = line.split('\t')
-
+    
     for i in range(9, len(lineSplit)):
         idName = lineSplit[i]
         row = df[df[0] == idName]
@@ -40,13 +38,25 @@ for line in vcf:   #getting the ids add putting in a list
         no,Go = makeIDDictionary(line,idfile)
         break
 
+def MaxDict(dict):
+    '''Gets key with the highest value in dict'''
+    HighVal = 0
+    HighKey = ''
+    for key in dict:
+        if dict[key] > HighVal:
+            HighVal = dict[key]
+            HighKey = key
+    return HighKey
+
 
 def makeCSV(vcf,ids,missing,chrom):
-    output = open('AncesterStates{}.csv'.format(chrom))
+    output = open('AncesterStates{}.csv'.format(chrom),'w')
     output.write('Chromosome,Position,MH Nuke,Primate Nuke'+'\n')
+    num_diff = 0
     for line in vcf:
         line = line.decode('ASCII')
 
+    
         if line[0] != '#':
             MHFreq = {}
             PrimateFreq = {}
@@ -68,7 +78,6 @@ def makeCSV(vcf,ids,missing,chrom):
 
 
             for species in ids: #go species by species
-
                 use = ids[species] #get list of ids
                 for index in use: #go id by id for each species
                     data = lst[index][:3] #data for eact id
@@ -98,14 +107,15 @@ def makeCSV(vcf,ids,missing,chrom):
                                 MHFreq[altBP2] = MHFreq.get(altBP2,0) + data.count('2')
                                 MHFreq[altBP3] = MHFreq.get(altBP3,0) + data.count('3')
                         Tot += 2
-
             tot_missing = (MHFreq['NA'] + PrimateFreq['NA'])/Tot
-            MHHighest = max(MHFreq)
-            PrimateHighest = max(PrimateFreq)
+            MHHighest = max(MHFreq, key=MHFreq.get) #could use MaxDict insted
+            PrimateHighest = max(PrimateFreq, key=PrimateFreq.get)
             if tot_missing  < missing and MHHighest != 'NA':
                 if MHHighest != PrimateHighest: 
                     output.write(','.join([chrome,pos,MHHighest,PrimateHighest])+'\n')
+                    num_diff += 1
     output.close()
+    print('Chrome {} has'.format(chrom),num_diff,'differences.')
 
 
 
@@ -114,3 +124,4 @@ def makeCSV(vcf,ids,missing,chrom):
 makeCSV(vcf,Go,missing_stat,chrome)
 
 
+# 0.05 for missingness  chr22_cds_primates.vcf.gz hominin_bed_files/primate_branch_ids.txt
